@@ -1,362 +1,167 @@
-  
-  // Dark Theme
-  const toggleSwitch = document.querySelector('input[type="checkbox"]');
-  const navIcon = document.getElementById("nav-icon");
-  const facebook = document.getElementById("fb");
-  const twitter = document.getElementById("tw");
-  const gitHub = document.getElementById("gt");
-  const image1 = document.getElementById('image1');
-  const toggleIcon = document.getElementById('toggle-icon');
-  const heroImage = document.getElementById('hero-image');
-  const heroImage2 = document.getElementById('hero-image2');
-  const h4El = document.querySelector('.text-2xl');
-  const h3El1 = document.getElementById('h3-mobile1');
-  const h3El2 = document.getElementById('h3-mobile2');
-  const h3El3 = document.getElementById('h3-mobile3')
-  
-  
-  // Form Validation
-  const form = document.getElementById('form');
-  const password1El = document.getElementById('password1');
-  const password2El = document.getElementById('password2');
-  const messageContainer = document.getElementById('message-container');
-  const message = document.getElementById('message');
-  
+const player = document.querySelector('.player');
+const video = document.querySelector('.video');
+const progressRange = document.querySelector('.progress-range');
+const progressBar = document.querySelector('.progress-bar');
+const playBtn = document.getElementById('play-btn');
+const volumeIcon = document.getElementById('volume-icon');
+const volumeRange = document.querySelector('.volume-range');
+const volumeBar = document.querySelector('.volume-bar');
+const speed = document.querySelector('.player-speed');
+const currentTime = document.querySelector('.time-elapsed');
+const duration = document.querySelector('.time-duration');
+const fullscreenBtn = document.querySelector('.fullscreen');
 
+// Play & Pause ----------------------------------- //
 
-  let isValid = false;
-  let passwordsMatch = false;
-
-
-// MUSIC PLAYER
-const image = document.querySelector('#music-img');
-const title = document.getElementById('title');
-const artist = document.getElementById('artist');
-const music = document.querySelector('audio');
-const currentTimeEl = document.getElementById('current-time');
-const durationEl = document.getElementById('duration');
-const progress = document.getElementById('progress');
-const progressContainer = document.getElementById('progress-container');
-const prevBtn = document.getElementById('prev');
-const playBtn = document.getElementById('play');
-const nextBtn = document.getElementById('next');
-const timing = document.querySelector('.duration-wrapper');
-const playerContainer = document.querySelector('.player-container');
-
-
-const bgControl = document.getElementById('bg-control')
-
-
-
-
-  // Dark Mode Styles
-  function darkMode() {
-  navIcon.style.color = '#fff';
-  facebook.style.color = 'rgb(252, 92, 44)';
-  twitter.style.color = 'rgb(252, 92, 44)';
-  gitHub.style.color = 'rgb(252, 92, 44)';
-  image1.src = 'img/logo-white.svg';
-  toggleIcon.children[0].classList.replace('fa-sun', 'fa-moon');
-  heroImage2.src = 'img/image-music.svg';
-  heroImage.src = 'img/music_dark.svg';
-  title.style.color = '#333';
-  artist.style.color = '#333';
-  timing.style.color = '#333'
-  playerContainer.style.boxShadow = '#fff';
-  h4El.style.color = '#000';
-  bgControl.style.display = 'none';
-  h3El1.style.color = '#333';
-  h3El2.style.color = '#333';
-  h3El3.style.color = '#333'
-
-} 
-
- // Light Mode Styles
-   function lightMode() {
-  navIcon.style.color = '#000';
-  facebook.style.color = '#000';
-  twitter.style.color = '#000';
-  gitHub.style.color = '#000';
-  image1.src = 'img/logo.svg';
-  toggleIcon.children[0].classList.replace('fa-moon', 'fa-sun');
-  heroImage.src = 'img/music_light.svg';
-  heroImage2.src = 'img/music_light.svg';
-  artist.style.color = '#000';
-  title.style.color = '#000';
-  timing.style.color = '#000';
-  playerContainer.style.boxShadow = '0 15px 30px 5px rgba(0, 0, 0, 0.3)';
-  bgControl.style.display = 'flex';
-  h3El1.style.color = '#333';
-  h3El2.style.color = '#333';
-  h3El3.style.color = '#333'
-}
-
-
-  // Switch Theme Dynamically
-function switchTheme(event) {
-  if (event.target.checked) {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    // localStorage.setItem('theme', 'dark');
-    darkMode();
-  } else {
-    document.documentElement.setAttribute('data-theme', 'light');
-    // localStorage.setItem('theme', 'light');
-    lightMode();
-  }
-}
-
-  // Event Listener
-  toggleSwitch.addEventListener('change', switchTheme);
-
-
-//Background Controls
-
-const { body } = document;
-
-function changeBackground(number) {
-  // Check if background already showing
-  let previousBackground;
-  if (body.className) {
-    previousBackground = body.className;
-  }
-  // Reset background
-  body.className = '';
-  // If background already on, turn off, else turn on background
-  switch (number) {
-    case '1':
-      return (previousBackground === 'background-1' ? false : body.classList.add('background-1'));
-    case '2':
-      return (previousBackground === 'background-2' ? false : body.classList.add('background-2'));
-    case '3':
-      return (previousBackground === 'background-3' ? false : body.classList.add('background-3'));
-    default:
-      break;
-  }
-}
-  
-// Music
-const songs = [
-  {
-    name: 'wizkid-1',
-    displayName: 'Frames',
-    artist: 'Wizkid',
-  },
-  {
-    name: 'wizkid-2',
-    displayName: 'Balance',
-    artist: 'Wizkid',
-  },
-  {
-    name: 'wizkid-3',
-    displayName: 'Slip-N-Slide',
-    artist: 'Wizkid ft Skillibeng, Shenseea',
-  },
-  {
-    name: 'wizkid-4',
-    displayName: 'Money and Love',
-    artist: 'Wizkid',
-  },
-];
-
-// Check if Playing
-let isPlaying = false;
-
-// Play
-function playSong() {
-  isPlaying = true;
-  playBtn.classList.replace('fa-play', 'fa-pause');
-  playBtn.setAttribute('title', 'Pause');
-  music.play();
-}
-
-// Pause
-function pauseSong() {
-  isPlaying = false;
+function showPlayIcon() {
   playBtn.classList.replace('fa-pause', 'fa-play');
   playBtn.setAttribute('title', 'Play');
-  music.pause();
 }
 
-// Play or Pause Event Listener
-playBtn.addEventListener('click', () => (isPlaying ? pauseSong() : playSong()));
-
-// Update DOM
-function loadSong(song) {
-  title.textContent = song.displayName;
-  artist.textContent = song.artist;
-  music.src = `music/${song.name}.mp3`;
-  image.src = `img/${song.name}.jpg`;
-}
-
-// Current Song
-let songIndex = 0;
-
-// Previous Song
-function prevSong() {
-  songIndex--;
-  if (songIndex < 0) {
-    songIndex = songs.length - 1;
-  }
-  loadSong(songs[songIndex]);
-  playSong();
-}
-
-// Next Song
-function nextSong() {
-  songIndex++;
-  if (songIndex > songs.length - 1) {
-    songIndex = 0;
-  }
-  loadSong(songs[songIndex]);
-  playSong();
-}
-
-// On Load - Select First Song
-loadSong(songs[songIndex]);
-
-// Update Progress Bar & Time
-function updateProgressBar(e) {
-  if (isPlaying) {
-    const { duration, currentTime } = e.srcElement;
-    // Update progress bar width
-    const progressPercent = (currentTime / duration) * 100;
-    progress.style.width = `${progressPercent}%`;
-    // Calculate display for duration
-    const durationMinutes = Math.floor(duration / 60);
-    let durationSeconds = Math.floor(duration % 60);
-    if (durationSeconds < 10) {
-      durationSeconds = `0${durationSeconds}`;
-    }
-    // Delay switching duration Element to avoid NaN
-    if (durationSeconds) {
-      durationEl.textContent = `${durationMinutes}:${durationSeconds}`;
-    }
-    // Calculate display for currentTime
-    const currentMinutes = Math.floor(currentTime / 60);
-    let currentSeconds = Math.floor(currentTime % 60);
-    if (currentSeconds < 10) {
-      currentSeconds = `0${currentSeconds}`;
-    }
-    currentTimeEl.textContent = `${currentMinutes}:${currentSeconds}`;
+function togglePlay() {
+  if (video.paused) {
+    video.play();
+    playBtn.classList.replace('fa-play', 'fa-pause');
+    playBtn.setAttribute('title', 'Pause');
+  } else {
+    video.pause();
+    showPlayIcon();
   }
 }
 
-// Set Progress Bar
-function setProgressBar(e) {
-  const width = this.clientWidth;
-  const clickX = e.offsetX;
-  const { duration } = music;
-  music.currentTime = (clickX / width) * duration;
+// On video end, show play button icon
+video.addEventListener('ended', showPlayIcon);
+
+// Progress Bar ---------------------------------- //
+
+// Format current time, duration
+function displayTime(time) {
+  const minutes = Math.floor(time / 60);
+  let seconds = Math.floor(time % 60);
+  seconds = seconds > 9 ? seconds : `0${seconds}`;
+  return `${minutes}:${seconds}`;
+}
+
+// Update progress bar as video plays
+function updateProgress() {
+  progressBar.style.width = `${(video.currentTime / video.duration) * 100}%`;
+  currentTime.textContent = `${displayTime(video.currentTime)} /`;
+  duration.textContent = `${displayTime(video.duration)}`;
+}
+
+// Click to seek within the video
+function setProgress(e) {
+  const newTime = e.offsetX / progressRange.offsetWidth;
+  progressBar.style.width = `${newTime * 100}%`;
+  video.currentTime = newTime * video.duration;
+}
+
+// Volume Controls --------------------------- //
+
+let lastVolume = 1;
+
+// Mute
+function toggleMute() {
+  volumeIcon.className = '';
+  if (video.volume) {
+    lastVolume = video.volume;
+    video.volume = 0;
+    volumeIcon.classList.add('fas', 'fa-volume-mute');
+    volumeIcon.setAttribute('title', 'Unmute');
+    volumeBar.style.width = 0;
+  } else {
+    video.volume = lastVolume;
+    volumeIcon.classList.add('fas', 'fa-volume-up');
+    volumeIcon.setAttribute('title', 'Mute');
+    volumeBar.style.width = `${lastVolume * 100}%`;
+  }
+}
+
+// Volume Bar
+function changeVolume(e) {
+  let volume = e.offsetX / volumeRange.offsetWidth;
+  // Rounding volume up or down
+  if (volume < 0.1) {
+    volume = 0;
+  }
+  if (volume > 0.9) {
+    volume = 1;
+  }
+  volumeBar.style.width = `${volume * 100}%`;
+  video.volume = volume;
+  // Change icon depending on volume
+  volumeIcon.className = '';
+  if (volume > 0.7) {
+    volumeIcon.classList.add('fas', 'fa-volume-up');
+  } else if (volume < 0.7 && volume > 0) {
+    volumeIcon.classList.add('fas', 'fa-volume-down');
+  } else if (volume === 0) {
+    volumeIcon.classList.add('fas', 'fa-volume-off');
+  }
+  lastVolume = volume;
+}
+
+// Change Playback Speed -------------------- //
+
+function changeSpeed() {
+  video.playbackRate = speed.value;
+}
+
+// Fullscreen ------------------------------- //
+
+/* View in fullscreen */
+function openFullscreen(element) {
+  if (element.requestFullscreen) {
+    element.requestFullscreen();
+  } else if (element.mozRequestFullScreen) {
+    /* Firefox */
+    element.mozRequestFullScreen();
+  } else if (element.webkitRequestFullscreen) {
+    /* Chrome, Safari and Opera */
+    element.webkitRequestFullscreen();
+  } else if (element.msRequestFullscreen) {
+    /* IE/Edge */
+    element.msRequestFullscreen();
+  }
+  video.classList.add('video-fullscreen');
+}
+
+/* Close fullscreen */
+function closeFullscreen() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.mozCancelFullScreen) {
+    /* Firefox */
+    document.mozCancelFullScreen();
+  } else if (document.webkitExitFullscreen) {
+    /* Chrome, Safari and Opera */
+    document.webkitExitFullscreen();
+  } else if (document.msExitFullscreen) {
+    /* IE/Edge */
+    document.msExitFullscreen();
+  }
+  video.classList.remove('video-fullscreen');
+}
+
+let fullscreen = false;
+
+// Toggle fullscreen
+function toggleFullscreen() {
+  if (!fullscreen) {
+    openFullscreen(player);
+  } else {
+    closeFullscreen();
+  }
+  fullscreen = !fullscreen;
 }
 
 // Event Listeners
-prevBtn.addEventListener('click', prevSong);
-nextBtn.addEventListener('click', nextSong);
-music.addEventListener('ended', nextSong);
-music.addEventListener('timeupdate', updateProgressBar);
-progressContainer.addEventListener('click', setProgressBar);
-
-
-
-
-// FORM VALIDATIOON
-function validateForm() {
-  // Use HTML constraint API to check form validity
-  isValid = form.checkValidity();
-  // If the form isn't valid
-  if (!isValid) {
-    // Style main message for an error
-    message.textContent = 'Please fill out all fields.';
-    message.style.color = 'red';
-    messageContainer.style.borderColor = 'red';
-    return;
-  }
-  // Check to see if both password fields match
-  if (password1El.value === password2El.value) {
-    // If they match, set value to true and borders to green
-    passwordsMatch = true;
-    password1El.style.borderColor = 'green';
-    password2El.style.borderColor = 'green';
-  } else {
-    // If they don't match, border color of input to red, change message
-    passwordsMatch = false;
-    message.textContent = 'Make sure passwords match.';
-    message.style.color = 'red';
-    messageContainer.style.borderColor = 'red';
-    password1El.style.borderColor = 'red';
-    password2El.style.borderColor = 'red';
-    return;
-  }
-  // If form is valid and passwords match
-  if (isValid && passwordsMatch) {
-    // Style main message for success
-    message.textContent = 'Successfully Registered!';
-    message.style.color = 'green';
-    messageContainer.style.borderColor = 'green';
-  }
-}
-
-function storeFormData() {
-  const user = {
-    name: form.name.value,
-    phone: form.phone.value,
-    email: form.email.value,
-    website: form.website.value,
-    password: form.password.value,
-  };
-  // Do something with user data
-  console.log(user);
-}
-
-function processFormData(e) {
-  e.preventDefault();
-  // Validate Form
-  validateForm();
-  // Submit Form if Valid
-  if (isValid && passwordsMatch) {
-    storeFormData();
-  }
-}
-
-// Event Listener
-form.addEventListener('submit', processFormData);
-
-
-// PICTURE IN PICTURE
-const videoElement = document.getElementById('video');
-const button = document.getElementById('start-share');
-const buttonEl = document.getElementById('share');
-
-// This will prompt to select media stream and then pass to video element, then play
-async function selectMediaStream() {
-  try {
-    const mediaStream = await navigator.mediaDevices.getDisplayMedia();
-    videoElement.srcObject = mediaStream;
-    videoElement.onloadedmetadata = () => {
-      videoElement.play();
-    };
-  } catch (error) {
-    // Catch Error Here
-    console.log('Errhhh, Error encountered:', error)
-  }
-}
-
-button.addEventListener('click', async () => {
-  // Disable Button
-  button.disabled = true;
-  // Start Picture in Picture
-  await videoElement.requestPictureInPicture();
-  // Reset Button
-  button.disabled = false;
-});
-
-// Share Screen
-buttonEl.addEventListener('click',selectMediaStream);
-
-// loader
-const loader = document.getElementById('preloader');
-window.addEventListener("load", function() {
-  loader.style.display = "none"
-});
-  
-  
+playBtn.addEventListener('click', togglePlay);
+video.addEventListener('click', togglePlay);
+video.addEventListener('timeupdate', updateProgress);
+video.addEventListener('canplay', updateProgress);
+progressRange.addEventListener('click', setProgress);
+volumeRange.addEventListener('click', changeVolume);
+volumeIcon.addEventListener('click', toggleMute);
+speed.addEventListener('change', changeSpeed);
+fullscreenBtn.addEventListener('click', toggleFullscreen);
