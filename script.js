@@ -1,362 +1,309 @@
-  
-  // Dark Theme
-  const toggleSwitch = document.querySelector('input[type="checkbox"]');
-  const navIcon = document.getElementById("nav-icon");
-  const facebook = document.getElementById("fb");
-  const twitter = document.getElementById("tw");
-  const gitHub = document.getElementById("gt");
-  const image1 = document.getElementById('image1');
-  const toggleIcon = document.getElementById('toggle-icon');
-  const heroImage = document.getElementById('hero-image');
-  const heroImage2 = document.getElementById('hero-image2');
-  const h4El = document.querySelector('.text-2xl');
-  const h3El1 = document.getElementById('h3-mobile1');
-  const h3El2 = document.getElementById('h3-mobile2');
-  const h3El3 = document.getElementById('h3-mobile3')
-  
-  
-  // Form Validation
-  const form = document.getElementById('form');
-  const password1El = document.getElementById('password1');
-  const password2El = document.getElementById('password2');
-  const messageContainer = document.getElementById('message-container');
-  const message = document.getElementById('message');
-  
+const gamePage = document.getElementById('game-page');
+const scorePage = document.getElementById('score-page');
+const splashPage = document.getElementById('splash-page');
+const countdownPage = document.getElementById('countdown-page');
+// Splash Page
+const startForm = document.getElementById('start-form');
+const radioContainers = document.querySelectorAll('.radio-container');
+const radioInputs = document.querySelectorAll('input');
+const bestScores = document.querySelectorAll('.best-score-value');
+// Countdown Page
+const countdown = document.querySelector('.countdown');
+// Game Page
+const itemContainer = document.querySelector('.item-container');
+// Score Page
+const finalTimeEl = document.querySelector('.final-time');
+const baseTimeEl = document.querySelector('.base-time');
+const penaltyTimeEl = document.querySelector('.penalty-time');
+const playAgainBtn = document.querySelector('.play-again');
 
+// Equations
+let questionAmount = 0;
+let equationsArray = [];
+let playerGuessArray = [];
+let bestScoreArray = [];
 
-  let isValid = false;
-  let passwordsMatch = false;
+// Game Page
+let firstNumber = 0;
+let secondNumber = 0;
+let equationObject = {};
+const wrongFormat = [];
 
+// Time
+let timer;
+let timePlayed = 0;
+let baseTime = 0;
+let penaltyTime = 0;
+let finalTime = 0;
+let finalTimeDisplay = '0.0';
 
-// MUSIC PLAYER
-const image = document.querySelector('#music-img');
-const title = document.getElementById('title');
-const artist = document.getElementById('artist');
-const music = document.querySelector('audio');
-const currentTimeEl = document.getElementById('current-time');
-const durationEl = document.getElementById('duration');
-const progress = document.getElementById('progress');
-const progressContainer = document.getElementById('progress-container');
-const prevBtn = document.getElementById('prev');
-const playBtn = document.getElementById('play');
-const nextBtn = document.getElementById('next');
-const timing = document.querySelector('.duration-wrapper');
-const playerContainer = document.querySelector('.player-container');
+// Scroll
+let valueY = 0;
 
-
-const bgControl = document.getElementById('bg-control')
-
-
-
-
-  // Dark Mode Styles
-  function darkMode() {
-  navIcon.style.color = '#fff';
-  facebook.style.color = 'rgb(252, 92, 44)';
-  twitter.style.color = 'rgb(252, 92, 44)';
-  gitHub.style.color = 'rgb(252, 92, 44)';
-  image1.src = 'img/logo-white.svg';
-  toggleIcon.children[0].classList.replace('fa-sun', 'fa-moon');
-  heroImage2.src = 'img/image-music.svg';
-  heroImage.src = 'img/music_dark.svg';
-  title.style.color = '#333';
-  artist.style.color = '#333';
-  timing.style.color = '#333'
-  playerContainer.style.boxShadow = '#fff';
-  h4El.style.color = '#000';
-  bgControl.style.display = 'none';
-  h3El1.style.color = '#333';
-  h3El2.style.color = '#333';
-  h3El3.style.color = '#333'
-
-} 
-
- // Light Mode Styles
-   function lightMode() {
-  navIcon.style.color = '#000';
-  facebook.style.color = '#000';
-  twitter.style.color = '#000';
-  gitHub.style.color = '#000';
-  image1.src = 'img/logo.svg';
-  toggleIcon.children[0].classList.replace('fa-moon', 'fa-sun');
-  heroImage.src = 'img/music_light.svg';
-  heroImage2.src = 'img/music_light.svg';
-  artist.style.color = '#000';
-  title.style.color = '#000';
-  timing.style.color = '#000';
-  playerContainer.style.boxShadow = '0 15px 30px 5px rgba(0, 0, 0, 0.3)';
-  bgControl.style.display = 'flex';
-  h3El1.style.color = '#333';
-  h3El2.style.color = '#333';
-  h3El3.style.color = '#333'
+// Refresh Splash Page Best Scores
+function bestScoresToDOM() {
+  bestScores.forEach((bestScore, index) => {
+    const bestScoreEl = bestScore;
+    bestScoreEl.textContent = `${bestScoreArray[index].bestScore}s`;
+  });
 }
 
-
-  // Switch Theme Dynamically
-function switchTheme(event) {
-  if (event.target.checked) {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    // localStorage.setItem('theme', 'dark');
-    darkMode();
+// Check Local Storage for Best Scores, Set bestScoreArray
+function getSavedBestScores() {
+  if (localStorage.getItem('bestScores')) {
+    bestScoreArray = JSON.parse(localStorage.bestScores);
   } else {
-    document.documentElement.setAttribute('data-theme', 'light');
-    // localStorage.setItem('theme', 'light');
-    lightMode();
+    bestScoreArray = [
+      { questions: 10, bestScore: finalTimeDisplay },
+      { questions: 25, bestScore: finalTimeDisplay },
+      { questions: 50, bestScore: finalTimeDisplay },
+      { questions: 99, bestScore: finalTimeDisplay },
+    ];
+    localStorage.setItem('bestScores', JSON.stringify(bestScoreArray));
   }
+  bestScoresToDOM();
 }
 
-  // Event Listener
-  toggleSwitch.addEventListener('change', switchTheme);
-
-
-//Background Controls
-
-const { body } = document;
-
-function changeBackground(number) {
-  // Check if background already showing
-  let previousBackground;
-  if (body.className) {
-    previousBackground = body.className;
-  }
-  // Reset background
-  body.className = '';
-  // If background already on, turn off, else turn on background
-  switch (number) {
-    case '1':
-      return (previousBackground === 'background-1' ? false : body.classList.add('background-1'));
-    case '2':
-      return (previousBackground === 'background-2' ? false : body.classList.add('background-2'));
-    case '3':
-      return (previousBackground === 'background-3' ? false : body.classList.add('background-3'));
-    default:
-      break;
-  }
-}
-  
-// Music
-const songs = [
-  {
-    name: 'wizkid-1',
-    displayName: 'Frames',
-    artist: 'Wizkid',
-  },
-  {
-    name: 'wizkid-2',
-    displayName: 'Balance',
-    artist: 'Wizkid',
-  },
-  {
-    name: 'wizkid-3',
-    displayName: 'Slip-N-Slide',
-    artist: 'Wizkid ft Skillibeng, Shenseea',
-  },
-  {
-    name: 'wizkid-4',
-    displayName: 'Money and Love',
-    artist: 'Wizkid',
-  },
-];
-
-// Check if Playing
-let isPlaying = false;
-
-// Play
-function playSong() {
-  isPlaying = true;
-  playBtn.classList.replace('fa-play', 'fa-pause');
-  playBtn.setAttribute('title', 'Pause');
-  music.play();
-}
-
-// Pause
-function pauseSong() {
-  isPlaying = false;
-  playBtn.classList.replace('fa-pause', 'fa-play');
-  playBtn.setAttribute('title', 'Play');
-  music.pause();
-}
-
-// Play or Pause Event Listener
-playBtn.addEventListener('click', () => (isPlaying ? pauseSong() : playSong()));
-
-// Update DOM
-function loadSong(song) {
-  title.textContent = song.displayName;
-  artist.textContent = song.artist;
-  music.src = `music/${song.name}.mp3`;
-  image.src = `img/${song.name}.jpg`;
-}
-
-// Current Song
-let songIndex = 0;
-
-// Previous Song
-function prevSong() {
-  songIndex--;
-  if (songIndex < 0) {
-    songIndex = songs.length - 1;
-  }
-  loadSong(songs[songIndex]);
-  playSong();
-}
-
-// Next Song
-function nextSong() {
-  songIndex++;
-  if (songIndex > songs.length - 1) {
-    songIndex = 0;
-  }
-  loadSong(songs[songIndex]);
-  playSong();
-}
-
-// On Load - Select First Song
-loadSong(songs[songIndex]);
-
-// Update Progress Bar & Time
-function updateProgressBar(e) {
-  if (isPlaying) {
-    const { duration, currentTime } = e.srcElement;
-    // Update progress bar width
-    const progressPercent = (currentTime / duration) * 100;
-    progress.style.width = `${progressPercent}%`;
-    // Calculate display for duration
-    const durationMinutes = Math.floor(duration / 60);
-    let durationSeconds = Math.floor(duration % 60);
-    if (durationSeconds < 10) {
-      durationSeconds = `0${durationSeconds}`;
+// Update Best Score Array
+function updateBestScore() {
+  bestScoreArray.forEach((score, index) => {
+    // Select correct Best Score to update
+    if (questionAmount == score.questions) {
+      // Return Best Score as number with one decimal
+      const savedBestScore = Number(bestScoreArray[index].bestScore);
+      // Update if the new final score is less or replacing zero
+      if (savedBestScore === 0 || savedBestScore > finalTime) {
+        bestScoreArray[index].bestScore = finalTimeDisplay;
+      }
     }
-    // Delay switching duration Element to avoid NaN
-    if (durationSeconds) {
-      durationEl.textContent = `${durationMinutes}:${durationSeconds}`;
-    }
-    // Calculate display for currentTime
-    const currentMinutes = Math.floor(currentTime / 60);
-    let currentSeconds = Math.floor(currentTime % 60);
-    if (currentSeconds < 10) {
-      currentSeconds = `0${currentSeconds}`;
-    }
-    currentTimeEl.textContent = `${currentMinutes}:${currentSeconds}`;
+  });
+  // Update Splash Page
+  bestScoresToDOM();
+  // Save to Local Storage
+  localStorage.setItem('bestScores', JSON.stringify(bestScoreArray));
+}
+
+// Reset Game
+function playAgain() {
+  gamePage.addEventListener('click', startTimer);
+  scorePage.hidden = true;
+  splashPage.hidden = false;
+  equationsArray = [];
+  playerGuessArray = [];
+  valueY = 0;
+  playAgainBtn.hidden = true;
+}
+
+// Show Score Page
+function showScorePage() {
+  // Show Play Again button after 1 second delay
+  setTimeout(() => {
+    playAgainBtn.hidden = false;
+  }, 1000);
+  gamePage.hidden = true;
+  scorePage.hidden = false;
+}
+
+// Format & Display Time in DOM
+function scoresToDOM() {
+  finalTimeDisplay = finalTime.toFixed(1);
+  baseTime = timePlayed.toFixed(1);
+  penaltyTime = penaltyTime.toFixed(1);
+  baseTimeEl.textContent = `Base Time: ${baseTime}s`;
+  penaltyTimeEl.textContent = `Penalty: +${penaltyTime}s`;
+  finalTimeEl.textContent = `${finalTimeDisplay}s`;
+  updateBestScore();
+  // Scroll to Top, go to Score Page
+  itemContainer.scrollTo({ top: 0, behavior: 'instant' });
+  showScorePage();
+}
+
+// Stop Timer, Process Results, go to Score Page
+function checkTime() {
+  console.log(timePlayed);
+  if (playerGuessArray.length == questionAmount) {
+    clearInterval(timer);
+    // Check for wrong guess, add penaltyTime
+    equationsArray.forEach((equation, index) => {
+      if (equation.evaluated === playerGuessArray[index]) {
+        // Correct Guess, No Penalty
+      } else {
+        // Incorrect Guess, Add Penalty
+        penaltyTime += 0.5;
+      }
+    });
+    finalTime = timePlayed + penaltyTime;
+    console.log('time:', timePlayed, 'penalty:', penaltyTime, 'final:', finalTime);
+    scoresToDOM();
   }
 }
 
-// Set Progress Bar
-function setProgressBar(e) {
-  const width = this.clientWidth;
-  const clickX = e.offsetX;
-  const { duration } = music;
-  music.currentTime = (clickX / width) * duration;
+// Add a tenth of a second to timePlayed
+function addTime() {
+  timePlayed += 0.1;
+  checkTime();
 }
+
+// Start timer when game page is clicked
+function startTimer() {
+  // Reset times
+  timePlayed = 0;
+  penaltyTime = 0;
+  finalTime = 0;
+  timer = setInterval(addTime, 100);
+  gamePage.removeEventListener('click', startTimer);
+}
+
+// Scroll, Store user selection in playerGuessArray
+function select(guessedTrue) {
+  // Scroll 80 more pixels
+  valueY += 80;
+  itemContainer.scroll(0, valueY);
+  // Add player guess to array
+  return guessedTrue ? playerGuessArray.push('true') : playerGuessArray.push('false');
+}
+
+// Displays Game Page
+function showGamePage() {
+  gamePage.hidden = false;
+  countdownPage.hidden = true;
+}
+
+// Get Random Number up to a certain amount
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
+// Create Correct/Incorrect Random Equations
+function createEquations() {
+  // Randomly choose how many correct equations there should be
+  const correctEquations = getRandomInt(questionAmount);
+  console.log('correct equations:', correctEquations);
+  // Set amount of wrong equations
+  const wrongEquations = questionAmount - correctEquations;
+  console.log('wrong equations:', wrongEquations);
+  // Loop through for each correct equation, multiply random numbers up to 9, push to array
+  for (let i = 0; i < correctEquations; i++) {
+    firstNumber = getRandomInt(9);
+    secondNumber = getRandomInt(9);
+    const equationValue = firstNumber * secondNumber;
+    const equation = `${firstNumber} x ${secondNumber} = ${equationValue}`;
+    equationObject = { value: equation, evaluated: 'true' };
+    equationsArray.push(equationObject);
+  }
+  // Loop through for each wrong equation, mess with the equation results, push to array
+  for (let i = 0; i < wrongEquations; i++) {
+    firstNumber = getRandomInt(9);
+    secondNumber = getRandomInt(9);
+    const equationValue = firstNumber * secondNumber;
+    wrongFormat[0] = `${firstNumber} x ${secondNumber + 1} = ${equationValue}`;
+    wrongFormat[1] = `${firstNumber} x ${secondNumber} = ${equationValue - 1}`;
+    wrongFormat[2] = `${firstNumber + 1} x ${secondNumber} = ${equationValue}`;
+    const formatChoice = getRandomInt(2);
+    const equation = wrongFormat[formatChoice];
+    equationObject = { value: equation, evaluated: 'false' };
+    equationsArray.push(equationObject);
+  }
+  shuffle(equationsArray);
+}
+
+// Add Equations to DOM
+function equationsToDOM() {
+  equationsArray.forEach((equation) => {
+    // Item
+    const item = document.createElement('div');
+    item.classList.add('item');
+    // Equation Text
+    const equationText = document.createElement('h1');
+    equationText.textContent = equation.value;
+    // Append
+    item.appendChild(equationText);
+    itemContainer.appendChild(item);
+  });
+}
+
+// Dynamically adding correct/incorrect equations
+function populateGamePage() {
+  // Reset DOM, Set Blank Space Above
+  itemContainer.textContent = '';
+  // Spacer
+  const topSpacer = document.createElement('div');
+  topSpacer.classList.add('height-240');
+  // Selected Item
+  const selectedItem = document.createElement('div');
+  selectedItem.classList.add('selected-item');
+  // Append
+  itemContainer.append(topSpacer, selectedItem);
+
+  // Create Equations, Build Elements in DOM
+  createEquations();
+  equationsToDOM();
+
+  // Set Blank Space Below
+  const bottomSpacer = document.createElement('div');
+  bottomSpacer.classList.add('height-500');
+  itemContainer.appendChild(bottomSpacer);
+}
+
+// Displays 3, 2, 1, GO!
+function countdownStart() {
+  countdown.textContent = '3';
+  setTimeout(() => {
+    countdown.textContent = '2';
+  }, 1000);
+  setTimeout(() => {
+    countdown.textContent = '1';
+  }, 2000);
+  setTimeout(() => {
+    countdown.textContent = 'GO!';
+  }, 3000);
+}
+
+// Navigate from Splash Page to CountdownPage to Game Page
+function showCountdown() {
+  countdownPage.hidden = false;
+  splashPage.hidden = true;
+  countdownStart();
+  populateGamePage();
+  setTimeout(showGamePage, 4000);
+}
+
+// Get the value from selected radio button
+function getRadioValue() {
+  let radioValue;
+  radioInputs.forEach((radioInput) => {
+    if (radioInput.checked) {
+      radioValue = radioInput.value;
+    }
+  });
+  return radioValue;
+}
+
+// Form that decides amount of Questions
+function selectQuestionAmount(e) {
+  e.preventDefault();
+  questionAmount = getRadioValue();
+  console.log('question amount:', questionAmount);
+  if (questionAmount) {
+      showCountdown();
+  }
+}
+
+// Switch selected input styling
+startForm.addEventListener('click', () => {
+  radioContainers.forEach((radioEl) => {
+    // Remove Selected Label Styling
+    radioEl.classList.remove('selected-label');
+    // Add it back if radio input is checked
+    if (radioEl.children[1].checked) {
+      radioEl.classList.add('selected-label');
+    }
+  });
+});
 
 // Event Listeners
-prevBtn.addEventListener('click', prevSong);
-nextBtn.addEventListener('click', nextSong);
-music.addEventListener('ended', nextSong);
-music.addEventListener('timeupdate', updateProgressBar);
-progressContainer.addEventListener('click', setProgressBar);
+gamePage.addEventListener('click', startTimer);
+startForm.addEventListener('submit', selectQuestionAmount);
 
-
-
-
-// FORM VALIDATIOON
-function validateForm() {
-  // Use HTML constraint API to check form validity
-  isValid = form.checkValidity();
-  // If the form isn't valid
-  if (!isValid) {
-    // Style main message for an error
-    message.textContent = 'Please fill out all fields.';
-    message.style.color = 'red';
-    messageContainer.style.borderColor = 'red';
-    return;
-  }
-  // Check to see if both password fields match
-  if (password1El.value === password2El.value) {
-    // If they match, set value to true and borders to green
-    passwordsMatch = true;
-    password1El.style.borderColor = 'green';
-    password2El.style.borderColor = 'green';
-  } else {
-    // If they don't match, border color of input to red, change message
-    passwordsMatch = false;
-    message.textContent = 'Make sure passwords match.';
-    message.style.color = 'red';
-    messageContainer.style.borderColor = 'red';
-    password1El.style.borderColor = 'red';
-    password2El.style.borderColor = 'red';
-    return;
-  }
-  // If form is valid and passwords match
-  if (isValid && passwordsMatch) {
-    // Style main message for success
-    message.textContent = 'Successfully Registered!';
-    message.style.color = 'green';
-    messageContainer.style.borderColor = 'green';
-  }
-}
-
-function storeFormData() {
-  const user = {
-    name: form.name.value,
-    phone: form.phone.value,
-    email: form.email.value,
-    website: form.website.value,
-    password: form.password.value,
-  };
-  // Do something with user data
-  console.log(user);
-}
-
-function processFormData(e) {
-  e.preventDefault();
-  // Validate Form
-  validateForm();
-  // Submit Form if Valid
-  if (isValid && passwordsMatch) {
-    storeFormData();
-  }
-}
-
-// Event Listener
-form.addEventListener('submit', processFormData);
-
-
-// PICTURE IN PICTURE
-const videoElement = document.getElementById('video');
-const button = document.getElementById('start-share');
-const buttonEl = document.getElementById('share');
-
-// This will prompt to select media stream and then pass to video element, then play
-async function selectMediaStream() {
-  try {
-    const mediaStream = await navigator.mediaDevices.getDisplayMedia();
-    videoElement.srcObject = mediaStream;
-    videoElement.onloadedmetadata = () => {
-      videoElement.play();
-    };
-  } catch (error) {
-    // Catch Error Here
-    console.log('Errhhh, Error encountered:', error)
-  }
-}
-
-button.addEventListener('click', async () => {
-  // Disable Button
-  button.disabled = true;
-  // Start Picture in Picture
-  await videoElement.requestPictureInPicture();
-  // Reset Button
-  button.disabled = false;
-});
-
-// Share Screen
-buttonEl.addEventListener('click',selectMediaStream);
-
-// loader
-const loader = document.getElementById('preloader');
-window.addEventListener("load", function() {
-  loader.style.display = "none"
-});
-  
-  
+// On Load
+getSavedBestScores();
